@@ -1,0 +1,83 @@
+
+
+#include <Adafruit_NeoPixel.h>
+#include <Servo.h>
+
+
+#define PIN_NEO_PIXEL  8   // Arduino pin that connects to NeoPixel
+#define VOLCANO_PIXELS     10  // The number of LEDs (pixels) on NeoPixel
+#define CO2_PIXELS      21
+#define DELAY_INTERVAL 300
+
+Adafruit_NeoPixel NeoPixel(21, PIN_NEO_PIXEL, NEO_GRB + NEO_KHZ800);
+
+// constants won't change
+const int BUTTON_PIN = 7; // Arduino pin connected to button's pin
+const int SERVO_PIN  = 9; // Arduino pin connected to servo motor's pin
+
+Servo servo; // create servo object to control a servo
+
+// variables will change:
+int angle = 0;          // the current angle of servo motor
+int lastButtonState;    // the previous state of button
+int currentButtonState; // the current state of button
+
+void setup() {
+  Serial.begin (9600);
+  NeoPixel.begin(); // INITIALIZE NeoPixel strip object (REQUIRED)
+  // pinMode(trigPin, OUTPUT);   //the trigger pin will output pulses of electricity
+  // pinMode(echoPin, INPUT);    //the echo pin will measure the duration of pulses coming back from the distance
+  pinMode(8, OUTPUT);
+
+  pinMode(BUTTON_PIN, INPUT_PULLUP); // set arduino pin to input pull-up mode
+  servo.attach(SERVO_PIN);           // attaches the servo on pin 9 to the servo object
+
+  servo.write(angle);
+  currentButtonState = digitalRead(BUTTON_PIN);
+}
+
+void loop() {
+  NeoPixel.clear();
+
+  lastButtonState    = currentButtonState;      // save the last state
+  currentButtonState = digitalRead(BUTTON_PIN); // read new state
+
+  if(lastButtonState == HIGH && currentButtonState == LOW) {
+    // change angle of servo motor
+    if(angle == 0){
+      angle = 200;
+    }
+    else if(angle == 200){
+      angle = 0;
+    }
+
+    // control servo motor arccoding to the angle
+    servo.write(angle);
+
+    // this is the code for the lights for non-circular cam
+    // for(int pixel = 0; pixel < 6; pixel++){
+    //   if (pixel == 0 || pixel == 5) { 
+    //   NeoPixel.setPixelColor(pixel, NeoPixel.Color(0, 255, 0)); // it only takes effect if pixels.show() is called
+    //   delay(DELAY_INTERVAL);
+    //   NeoPixel.show();
+    //   }
+    //   else if(pixel == 1 || pixel == 4) {
+    //     NeoPixel.setPixelColor(pixel, NeoPixel.Color(255,255,0)); 
+    //     delay(450);
+    //     NeoPixel.show();
+    //   }
+    //   else{
+    //     NeoPixel.setPixelColor(pixel, NeoPixel.Color(255,0,0)); 
+    //     delay(450);
+    //     NeoPixel.show();
+    //   }
+    // }
+    
+    // this is the code for the lights for circular cam
+    for(int pixel = 0; pixel < 7; pixel++){
+        NeoPixel.setPixelColor(pixel, NeoPixel.Color(255,255,0)); 
+        delay(450);
+        NeoPixel.show();
+    }
+  }
+}
